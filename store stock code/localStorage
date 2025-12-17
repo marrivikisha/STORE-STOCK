@@ -1,0 +1,39 @@
+// -------------------------------------------
+// LOCAL STORAGE ENGINE (REPLACES dataSdk)
+// -------------------------------------------
+
+const STORAGE_KEY = "rustaqInventoryRecords";
+
+function loadAll() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAll(arr) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+}
+
+// Our database
+allRecords = loadAll();
+
+const dataSdk = {
+  async create(entry) {
+    entry.__backendId = 'id-' + Date.now() + '-' + Math.random();
+    allRecords.push(entry);
+    saveAll(allRecords);
+    dataHandler.onDataChanged(allRecords);
+    return { isOk: true };
+  },
+
+  async delete(entry) {
+    allRecords = allRecords.filter(r => r.__backendId !== entry.__backendId);
+    saveAll(allRecords);
+    dataHandler.onDataChanged(allRecords);
+    return { isOk: true };
+  }
+};
+
+window.dataSdk = dataSdk;

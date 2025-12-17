@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Inventory & Assets System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f6f9;
+      color: #111827;
+    }
+
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 8px 0;
+      font-size: 24px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 18px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .tabs button {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #374151;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .tabs button.active {
+      background: #1d4ed8;
+      color: #fff;
+    }
+
+    .tabs button:hover {
+      transform: translateY(-1px);
+    }
+
+    .tab-pane {
+      display: none;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .small-note {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 12px;
+    }
+
+    input, select, textarea {
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      font-size: 13px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 40px;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-primary {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .btn-outline {
+      background: #fff;
+      border: 1px solid #9ca3af;
+      color: #374151;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .table-wrapper {
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      overflow: auto;
+      max-height: 380px;
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f9fafb;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .link-btn {
+      border: none;
+      background: none;
+      padding: 0;
+      cursor: pointer;
+      font-size: 11px;
+      color: #2563eb;
+      text-decoration: underline;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+    }
+
+    .status-ok {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-warn {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .status-info {
+      background: #e0f2fe;
+      color: #075985;
+    }
+
+    .photo-thumb {
+      max-width: 80px;
+      max-height: 50px;
+      border-radius: 4px;
+      object-fit: cover;
+      border: 1px solid #e5e7eb;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 20px;
+      }
+      th, td {
+        font-size: 11px;
+      }
+      .section-header h2 {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <h1>Inventory & Assets System</h1>
+    <div class="subtitle">
+      Store stock • Manpower • Tools • Vehicles &mdash; HTML only (saved in this browser)
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="active" onclick="showTab('inventory')">📦 Inventory</button>
+      <button onclick="showTab('manpower')">👷 Manpower</button>
+      <button onclick="showTab('tools')">🛠 Tools</button>
+      <button onclick="showTab('vehicles')">🚚 Vehicles</button>
+    </div>
+
+    <!-- INVENTORY TAB -->
+    <div id="tab-inventory" class="tab-pane active">
+      <div class="section-header">
+        <h2>📦 Inventory (Store Stock)</h2>
+        <span class="small-note">Balance = Stock Qty - Reserved Qty (for info)</span>
+      </div>
+
+      <form id="invForm">
+        <input type="hidden" id="invEditIndex" value="-1" />
+        <label>
+          Item Name
+          <input type="text" id="invName" required />
+        </label>
+        <label>
+          Category
+          <input type="text" id="invCategory" placeholder="Cable, OHL, Tools, etc." />
+        </label>
+        <label>
+          Stock Qty
+          <input type="number" id="invQty" min="0" value="0" />
+        </label>
+        <label>
+          Unit
+          <input type="text" id="invUnit" placeholder="Nos, mtr, set" />
+        </label>
+        <label>
+          Min. Stock (Alert)
+          <input type="number" id="invMin" min="0" value="0" />
+        </label>
+        <label>
+          Location
+          <input type="text" id="invLocation" placeholder="Store A / Van / Site" />
+        </label>
+        <label>
+          Last Issue / Receive Date
+          <input type="date" id="invDate" />
+        </label>
+        <label>
+          Remarks
+          <textarea id="invRemark" placeholder="Any note"></textarea>
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 Save Item</button>
+          <button type="button" class="btn btn-secondary" onclick="resetInventoryForm()">🧹 Clear Form</button>
+          <button type="button" class="btn btn-outline" onclick="exportInventoryCSV()">📤 Export CSV</button>
+          <button type="button" class="btn btn-danger" onclick="clearAll('inventory')">🗑 Clear All Items</button>
+        </div>
+      </form>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Item</th>
+              <th>Category</th>
+              <th>Stock Qty</th>
+              <th>Unit</th>
+              <th>Min</th>
+              <th>Location</th>
+              <th>Date</th>
+              <th>Remark</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="invTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MANPOWER TAB -->
+    <div id="tab-manpower" class="tab-pane">
+      <div class="section-header">
+        <h2>👷 Manpower</h2>
+        <span class="small-note">Use this list when assigning tools/vehicles</span>
+      </div>
+
+      <form id="mpForm">
+        <input type="hidden" id="mpEditIndex" value="-1" />
+        <label>
+          Employee ID
+          <input type="text" id="mpId" placeholder="EMP001" />
+        </label>
+        <label>
+          Name
+          <input type="text" id="mpName" required />
+        </label>
+        <label>
+          Department
+          <input type="text" id="mpDept" placeholder="Emergency / Asset / Store" />
+        </label>
+        <label>
+          Position
+          <input type="text" id="mpPos" placeholder="Technician, Supervisor" />
+        </label>
+        <label>
+          Contact
+          <input type="text" id="mpContact" />
+        </label>
+        <label>
+          Status
+          <select id="mpStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </label>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 Save Person</button>
+          <button type="button" class="btn btn-secondary" onclick="resetMpForm()">🧹 Clear Form</button>
+          <button type="button" class="btn btn-outline" onclick="exportManpowerCSV()">📤 Export CSV</button>
+          <button type="button" class="btn btn-danger" onclick="clearAll('manpower')">🗑 Clear All Manpower</button>
+        </div>
+      </form>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Emp ID</th>
+              <th>Name</th>
+              <th>Dept</th>
+              <th>Position</th>
+              <th>Contact</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="mpTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TOOLS TAB -->
+    <div id="tab-tools" class="tab-pane">
+      <div class="section-header">
+        <h2>🛠 Tools</h2>
+        <span class="small-note">Use photo URL if you have image online/local</span>
+      </div>
+
+      <form id="toolForm">
+        <input type="hidden" id="toolEditIndex" value="-1" />
+        <label>
+          Tool ID
+          <input type="text" id="toolId" placeholder="T001" />
+        </label>
+        <label>
+          Tool Name
+          <input type="text" id="toolName" required />
+        </label>
+        <label>
+          Qty
+          <input type="number" id="toolQty" min="0" value="1" />
+        </label>
+        <label>
+          Condition
+          <select id="toolCond">
+            <option value="Good">Good</option>
+            <option value="Damaged">Damaged</option>
+            <option value="Under Repair">Under Repair</option>
+          </select>
+        </label>
+        <label>
+          Photo URL
+          <input type="url" id="toolPhoto" placeholder="https://..." />
+        </label>
+        <label>
+          Issued To
+          <input type="text" id="toolIssuedTo" placeholder="Name / Team" />
+        </label>
+        <label>
+          Issue Date
+          <input type="date" id="toolIssueDate" />
+        </label>
+        <label>
+          Return Date
+          <input type="date" id="toolReturnDate" />
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 Save Tool</button>
+          <button type="button" class="btn btn-secondary" onclick="resetToolForm()">🧹 Clear Form</button>
+          <button type="button" class="btn btn-outline" onclick="exportToolsCSV()">📤 Export CSV</button>
+          <button type="button" class="btn btn-danger" onclick="clearAll('tools')">🗑 Clear All Tools</button>
+        </div>
+      </form>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tool ID</th>
+              <th>Name</th>
+              <th>Qty</th>
+              <th>Condition</</th>
+              <th>Photo</th>
+              <th>Issued To</th>
+              <th>Issue Date</th>
+              <th>Return Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="toolTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VEHICLES TAB -->
+    <div id="tab-vehicles" class="tab-pane">
+      <div class="section-header">
+        <h2>🚚 Vehicles</h2>
+        <span class="small-note">Track assignment & status</span>
+      </div>
+
+      <form id="vehForm">
+        <input type="hidden" id="vehEditIndex" value="-1" />
+        <label>
+          Vehicle ID
+          <input type="text" id="vehId" placeholder="V001" />
+        </label>
+        <label>
+          Vehicle Photo URL
+          <input type="url" id="vehPhoto" placeholder="https://..." />
+        </label>
+        <label>
+          Vehicle Name
+          <input type="text" id="vehName" required />
+        </label>
+        <label>
+          Vehicle No
+          <input type="text" id="vehNo" placeholder="Plate No." />
+        </label>
+        <label>
+          Type
+          <input type="text" id="vehType" placeholder="Pickup / Truck / Car" />
+        </label>
+        <label>
+          Assigned To
+          <input type="text" id="vehAssignedTo" placeholder="Name / Team" />
+        </label>
+        <label>
+          Status
+          <select id="vehStatus">
+            <option value="Available">Available</option>
+            <option value="On Duty">On Duty</option>
+            <option value="Under Repair">Under Repair</option>
+          </select>
+        </label>
+        <label>
+          Last Service Date
+          <input type="date" id="vehServiceDate" />
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 Save Vehicle</button>
+          <button type="button" class="btn btn-secondary" onclick="resetVehForm()">🧹 Clear Form</button>
+          <button type="button" class="btn btn-outline" onclick="exportVehiclesCSV()">📤 Export CSV</button>
+          <button type="button" class="btn btn-danger" onclick="clearAll('vehicles')">🗑 Clear All Vehicles</button>
+        </div>
+      </form>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Veh ID</th>
+              <th>Photo</th>
+              <th>Name</th>
+              <th>No</th>
+              <th>Type</th>
+              <th>Assigned</th>
+              <th>Status</th>
+              <th>Last Service</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="vehTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // STORAGE KEYS
+    const STORAGE_KEYS = {
+      inventory: 'inv_items',
+      manpower: 'inv_manpower',
+      tools: 'inv_tools',
+      vehicles: 'inv_vehicles'
+    };
+
+    // TABS
+    function showTab(name) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+
+      const tabOrder = ['inventory', 'manpower', 'tools', 'vehicles'];
+      const buttons = document.querySelectorAll('.tabs button');
+      buttons.forEach(b => b.classList.remove('active'));
+      const idx = tabOrder.indexOf(name);
+      if (idx >= 0 && buttons[idx]) buttons[idx].classList.add('active');
+    }
+
+    // GENERIC STORAGE
+    function loadData(type) {
+      const key = STORAGE_KEYS[type];
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        console.error('Load error', type, e);
+        return [];
+      }
+    }
+
+    function saveData(type, data) {
+      const key = STORAGE_KEYS[type];
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function clearAll(type) {
+      if (!confirm('Clear all ' + type + ' records?')) return;
+      saveData(type, []);
+      renderAll();
+    }
+
+    // CSV EXPORT
+    function exportCSV(filename, headers, rows) {
+      const lines = [];
+      lines.push(headers.join(','));
+      rows.forEach(r => {
+        const escaped = r.map(v => {
+          let val = v == null ? '' : String(v);
+          if (val.includes('"') || val.includes(',') || val.includes('\n')) {
+            val = '"' + val.replace(/"/g, '""') + '"';
+          }
+          return val;
+        });
+        lines.push(escaped.join(','));
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // INVENTORY
+    function renderInventory() {
+      const tbody = document.getElementById('invTableBody');
+      tbody.innerHTML = '';
+      const data = loadData('inventory');
+      data.forEach((row, idx) => {
+        const warn = row.min && row.qty <= row.min;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${row.name || ''}</td>
+          <td>${row.category || ''}</td>
+          <td>${warn ? '<span class="status-pill status-warn">' + row.qty + '</span>' : row.qty}</td>
+          <td>${row.unit || ''}</td>
+          <td>${row.min != null ? row.min : ''}</td>
+          <td>${row.location || ''}</td>
+          <td>${row.date || ''}</td>
+          <td>${row.remark || ''}</td>
+          <td>
+            <div class="table-actions">
+              <button class="link-btn" onclick="editInventory(${idx})">Edit</button>
+              <button class="link-btn" onclick="deleteInventory(${idx})">Delete</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function resetInventoryForm() {
+      document.getElementById('invForm').reset();
+      document.getElementById('invEditIndex').value = -1;
+    }
+
+    function editInventory(index) {
+      const data = loadData('inventory');
+      const row = data[index];
+      document.getElementById('invEditIndex').value = index;
+      document.getElementById('invName').value = row.name || '';
+      document.getElementById('invCategory').value = row.category || '';
+      document.getElementById('invQty').value = row.qty;
+      document.getElementById('invUnit').value = row.unit || '';
+      document.getElementById('invMin').value = row.min != null ? row.min : 0;
+      document.getElementById('invLocation').value = row.location || '';
+      document.getElementById('invDate').value = row.date || '';
+      document.getElementById('invRemark').value = row.remark || '';
+      showTab('inventory');
+    }
+
+    function deleteInventory(index) {
+      if (!confirm('Delete this item?')) return;
+      const data = loadData('inventory');
+      data.splice(index, 1);
+      saveData('inventory', data);
+      renderInventory();
+    }
+
+    document.getElementById('invForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = document.getElementById('invName').value.trim();
+      if (!name) {
+        alert('Item Name required');
+        return;
+      }
+      const category = document.getElementById('invCategory').value.trim();
+      const qty = Number(document.getElementById('invQty').value) || 0;
+      const unit = document.getElementById('invUnit').value.trim();
+      const min = Number(document.getElementById('invMin').value) || 0;
+      const location = document.getElementById('invLocation').value.trim();
+      const date = document.getElementById('invDate').value;
+      const remark = document.getElementById('invRemark').value.trim();
+
+      const data = loadData('inventory');
+      const idx = Number(document.getElementById('invEditIndex').value);
+      const row = { name, category, qty, unit, min, location, date, remark };
+      if (idx >= 0 && idx < data.length) {
+        data[idx] = row;
+      } else {
+        data.push(row);
+      }
+      saveData('inventory', data);
+      resetInventoryForm();
+      renderInventory();
+    });
+
+    function exportInventoryCSV() {
+      const data = loadData('inventory');
+      const headers = ['Item Name','Category','Stock Qty','Unit','Min Stock','Location','Date','Remark'];
+      const rows = data.map(r => [
+        r.name || '',
+        r.category || '',
+        r.qty != null ? r.qty : '',
+        r.unit || '',
+        r.min != null ? r.min : '',
+        r.location || '',
+        r.date || '',
+        r.remark || ''
+      ]);
+      exportCSV('inventory.csv', headers, rows);
+    }
+
+    // MANPOWER
+    function renderManpower() {
+      const tbody = document.getElementById('mpTableBody');
+      tbody.innerHTML = '';
+      const data = loadData('manpower');
+      data.forEach((row, idx) => {
+        const statusClass = row.status === 'Active' ? 'status-ok' : 'status-info';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${row.id || ''}</td>
+          <td>${row.name || ''}</td>
+          <td>${row.dept || ''}</td>
+          <td>${row.pos || ''}</td>
+          <td>${row.contact || ''}</td>
+          <td><span class="status-pill ${statusClass}">${row.status || ''}</span></td>
+          <td>
+            <div class="table-actions">
+              <button class="link-btn" onclick="editMp(${idx})">Edit</button>
+              <button class="link-btn" onclick="deleteMp(${idx})">Delete</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function resetMpForm() {
+      document.getElementById('mpForm').reset();
+      document.getElementById('mpEditIndex').value = -1;
+    }
+
+    function editMp(index) {
+      const data = loadData('manpower');
+      const row = data[index];
+      document.getElementById('mpEditIndex').value = index;
+      document.getElementById('mpId').value = row.id || '';
+      document.getElementById('mpName').value = row.name || '';
+      document.getElementById('mpDept').value = row.dept || '';
+      document.getElementById('mpPos').value = row.pos || '';
+      document.getElementById('mpContact').value = row.contact || '';
+      document.getElementById('mpStatus').value = row.status || 'Active';
+      showTab('manpower');
+    }
+
+    function deleteMp(index) {
+      if (!confirm('Delete this person?')) return;
+      const data = loadData('manpower');
+      data.splice(index, 1);
+      saveData('manpower', data);
+      renderManpower();
+    }
+
+    document.getElementById('mpForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = document.getElementById('mpName').value.trim();
+      if (!name) {
+        alert('Name required');
+        return;
+      }
+      const id = document.getElementById('mpId').value.trim();
+      const dept = document.getElementById('mpDept').value.trim();
+      const pos = document.getElementById('mpPos').value.trim();
+      const contact = document.getElementById('mpContact').value.trim();
+      const status = document.getElementById('mpStatus').value;
+
+      const data = loadData('manpower');
+      const idx = Number(document.getElementById('mpEditIndex').value);
+      const row = { id, name, dept, pos, contact, status };
+      if (idx >= 0 && idx < data.length) {
+        data[idx] = row;
+      } else {
+        data.push(row);
+      }
+      saveData('manpower', data);
+      resetMpForm();
+      renderManpower();
+    });
+
+    function exportManpowerCSV() {
+      const data = loadData('manpower');
+      const headers = ['Emp ID','Name','Department','Position','Contact','Status'];
+      const rows = data.map(r => [
+        r.id || '',
+        r.name || '',
+        r.dept || '',
+        r.pos || '',
+        r.contact || '',
+        r.status || ''
+      ]);
+      exportCSV('manpower.csv', headers, rows);
+    }
+
+    // TOOLS
+    function renderTools() {
+      const tbody = document.getElementById('toolTableBody');
+      tbody.innerHTML = '';
+      const data = loadData('tools');
+      data.forEach((row, idx) => {
+        let condClass = 'status-info';
+        if (row.cond === 'Good') condClass = 'status-ok';
+        if (row.cond === 'Damaged' || row.cond === 'Under Repair') condClass = 'status-warn';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${row.id || ''}</td>
+          <td>${row.name || ''}</td>
+          <td>${row.qty != null ? row.qty : ''}</td>
+          <td><span class="status-pill ${condClass}">${row.cond || ''}</span></td>
+          <td>${row.photo ? '<img class="photo-thumb" src="' + row.photo + '" />' : ''}</td>
+          <td>${row.issuedTo || ''}</td>
+          <td>${row.issueDate || ''}</td>
+          <td>${row.returnDate || ''}</td>
+          <td>
+            <div class="table-actions">
+              <button class="link-btn" onclick="editTool(${idx})">Edit</button>
+              <button class="link-btn" onclick="deleteTool(${idx})">Delete</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function resetToolForm() {
+      document.getElementById('toolForm').reset();
+      document.getElementById('toolEditIndex').value = -1;
+    }
+
+    function editTool(index) {
+      const data = loadData('tools');
+      const row = data[index];
+      document.getElementById('toolEditIndex').value = index;
+      document.getElementById('toolId').value = row.id || '';
+      document.getElementById('toolName').value = row.name || '';
+      document.getElementById('toolQty').value = row.qty != null ? row.qty : 0;
+      document.getElementById('toolCond').value = row.cond || 'Good';
+      document.getElementById('toolPhoto').value = row.photo || '';
+      document.getElementById('toolIssuedTo').value = row.issuedTo || '';
+      document.getElementById('toolIssueDate').value = row.issueDate || '';
+      document.getElementById('toolReturnDate').value = row.returnDate || '';
+      showTab('tools');
+    }
+
+    function deleteTool(index) {
+      if (!confirm('Delete this tool?')) return;
+      const data = loadData('tools');
+      data.splice(index, 1);
+      saveData('tools', data);
+      renderTools();
+    }
+
+    document.getElementById('toolForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = document.getElementById('toolName').value.trim();
+      if (!name) {
+        alert('Tool name required');
+        return;
+      }
+      const id = document.getElementById('toolId').value.trim();
+      const qty = Number(document.getElementById('toolQty').value) || 0;
+      const cond = document.getElementById('toolCond').value;
+      const photo = document.getElementById('toolPhoto').value.trim();
+      const issuedTo = document.getElementById('toolIssuedTo').value.trim();
+      const issueDate = document.getElementById('toolIssueDate').value;
+      const returnDate = document.getElementById('toolReturnDate').value;
+
+      const data = loadData('tools');
+      const idx = Number(document.getElementById('toolEditIndex').value);
+      const row = { id, name, qty, cond, photo, issuedTo, issueDate, returnDate };
+      if (idx >= 0 && idx < data.length) {
+        data[idx] = row;
+      } else {
+        data.push(row);
+      }
+      saveData('tools', data);
+      resetToolForm();
+      renderTools();
+    });
+
+    function exportToolsCSV() {
+      const data = loadData('tools');
+      const headers = ['Tool ID','Name','Qty','Condition','Photo URL','Issued To','Issue Date','Return Date'];
+      const rows = data.map(r => [
+        r.id || '',
+        r.name || '',
+        r.qty != null ? r.qty : '',
+        r.cond || '',
+        r.photo || '',
+        r.issuedTo || '',
+        r.issueDate || '',
+        r.returnDate || ''
+      ]);
+      exportCSV('tools.csv', headers, rows);
+    }
+
+    // VEHICLES
+    function renderVehicles() {
+      const tbody = document.getElementById('vehTableBody');
+      tbody.innerHTML = '';
+      const data = loadData('vehicles');
+      data.forEach((row, idx) => {
+        let statusClass = 'status-info';
+        if (row.status === 'Available') statusClass = 'status-ok';
+        if (row.status === 'Under Repair') statusClass = 'status-warn';
+        if (row.status === 'On Duty') statusClass = 'status-info';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${row.id || ''}</td>
+          <td>${row.photo ? '<img class="photo-thumb" src="' + row.photo + '" />' : ''}</td>
+          <td>${row.name || ''}</td>
+          <td>${row.no || ''}</td>
+          <td>${row.type || ''}</td>
+          <td>${row.assignedTo || ''}</td>
+          <td><span class="status-pill ${statusClass}">${row.status || ''}</span></td>
+          <td>${row.serviceDate || ''}</td>
+          <td>
+            <div class="table-actions">
+              <button class="link-btn" onclick="editVeh(${idx})">Edit</button>
+              <button class="link-btn" onclick="deleteVeh(${idx})">Delete</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function resetVehForm() {
+      document.getElementById('vehForm').reset();
+      document.getElementById('vehEditIndex').value = -1;
+    }
+
+    function editVeh(index) {
+      const data = loadData('vehicles');
+      const row = data[index];
+      document.getElementById('vehEditIndex').value = index;
+      document.getElementById('vehId').value = row.id || '';
+      document.getElementById('vehPhoto').value = row.photo || '';
+      document.getElementById('vehName').value = row.name || '';
+      document.getElementById('vehNo').value = row.no || '';
+      document.getElementById('vehType').value = row.type || '';
+      document.getElementById('vehAssignedTo').value = row.assignedTo || '';
+      document.getElementById('vehStatus').value = row.status || 'Available';
+      document.getElementById('vehServiceDate').value = row.serviceDate || '';
+      showTab('vehicles');
+    }
+
+    function deleteVeh(index) {
+      if (!confirm('Delete this vehicle?')) return;
+      const data = loadData('vehicles');
+      data.splice(index, 1);
+      saveData('vehicles', data);
+      renderVehicles();
+    }
+
+    document.getElementById('vehForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = document.getElementById('vehName').value.trim();
+      if (!name) {
+        alert('Vehicle name required');
+        return;
+      }
+      const id = document.getElementById('vehId').value.trim();
+      const photo = document.getElementById('vehPhoto').value.trim();
+      const no = document.getElementById('vehNo').value.trim();
+      const type = document.getElementById('vehType').value.trim();
+      const assignedTo = document.getElementById('vehAssignedTo').value.trim();
+      const status = document.getElementById('vehStatus').value;
+      const serviceDate = document.getElementById('vehServiceDate').value;
+
+      const data = loadData('vehicles');
+      const idx = Number(document.getElementById('vehEditIndex').value);
+      const row = { id, photo, name, no, type, assignedTo, status, serviceDate };
+      if (idx >= 0 && idx < data.length) {
+        data[idx] = row;
+      } else {
+        data.push(row);
+      }
+      saveData('vehicles', data);
+      resetVehForm();
+      renderVehicles();
+    });
+
+    function exportVehiclesCSV() {
+      const data = loadData('vehicles');
+      const headers = ['Veh ID','Photo URL','Name','No','Type','Assigned To','Status','Last Service Date'];
+      const rows = data.map(r => [
+        r.id || '',
+        r.photo || '',
+        r.name || '',
+        r.no || '',
+        r.type || '',
+        r.assignedTo || '',
+        r.status || '',
+        r.serviceDate || ''
+      ]);
+      exportCSV('vehicles.csv', headers, rows);
+    }
+
+    // RENDER ALL
+    function renderAll() {
+      renderInventory();
+      renderManpower();
+      renderTools();
+      renderVehicles();
+    }
+
+    document.addEventListener('DOMContentLoaded', renderAll);
+  </script>
+</body>
+</html>
